@@ -149,6 +149,9 @@ mean_by_group &lt;-<span class="st"> </span><span class="cf">function</span>(df,
 <span class="co">#&gt; 1 setosa             5.01        3.43         1.46       0.246</span>
 <span class="co">#&gt; 2 versicolor         5.94        2.77         4.26       1.33 </span>
 <span class="co">#&gt; 3 virginica          6.59        2.97         5.55       2.03</span></code></pre></div>
+</div>
+<div id="on-cars" class="slide section level2">
+<h2>On cars?</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Can we use it on cars?</span>
 <span class="kw">mean_by_group</span>(mtcars, <span class="kw">quo</span>(cyl))
 <span class="co">#&gt; # A tibble: 3 x 11</span>

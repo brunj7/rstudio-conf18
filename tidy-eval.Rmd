@@ -95,7 +95,7 @@ mean_by_group <- function(df, group_attr){
 mean_by_group(my_df, quo(Species))
 
 ```
-
+## On cars?
 ```{r function working on cars, echo=TRUE}
 # Can we use it on cars?
 mean_by_group(mtcars, quo(cyl))
