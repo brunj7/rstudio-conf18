@@ -1,0 +1,102 @@
+---
+title: "RStudio::conf18 - Tidy Eval"
+author: "Julien Brun, NCEAS"
+date: "2/25/2018"
+output:
+  slidy_presentation: default
+  ioslides_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, collapse = T, comment = "#>")
+options(tibble.print_min = 4L, tibble.print_max = 4L)
+```
+
+## Tidy eval
+
+### Programming with dplyr, tidyr, and ggplot2
+
+This talk was given by Hadley Wickham at the RStudio Conference 2018. 
+
+I could not find the slides of his talk online, so this summary is based on the vignette on the same topic: http://dplyr.tidyverse.org/articles/programming.html
+
+
+## What's different?
+
+You might have noticed that when using the tidyverse, contrary to R base, you do **not** quote the column names. This is because most of the tidyverse functions use non-standard evaluation (NSE) and has its custom way to evaluate expressions.
+
+. . . 
+
+This has two main advantages:
+
+- Operations on data frames can be expressed with a compact syntax
+- This provide more flexibility in regards to when and how the evaluation occurs
+
+## Some Drawbacks?
+
+- You can't replace a value with a seemingly equivalent object that you've defined elsewhere (can't use variables directly)
+- dplyr code can be ambiguous depending what is defined where
+
+*=> this make programming with dplyr  not straight forward*
+
+## Example Time
+
+```{r example, echo=TRUE, message=FALSE}
+library(dplyr)
+
+# Define a dummy data frame
+my_df <- as_tibble(iris)
+my_df
+
+```
+
+## Computing the mean by species
+
+```{r group_by_filtering, echo=TRUE}
+
+my_df %>%
+  group_by(Species) %>%
+  summarise_all(mean, na.rm = TRUE)
+
+```
+
+## Using a function
+
+```{r function time, echo=TRUE, eval = FALSE}
+# Function definition
+mean_by_group <- function(df, group_attr){
+  my_df %>%
+    group_by(group_attr) %>%
+    summarise_all(mean, na.rm = TRUE)
+}
+
+# Function call
+mean_by_group(my_df, Species)
+
+# Maybe this?
+mean_by_group(my_df, "Species")
+```
+## Our new tools
+
+- *The quosure `quo()`*: to replace the quotation (to be exact it creates a special type of formulat)
+- *The bang `!!`*: to signal the need of unquoting
+
+## Example
+
+```{r function working, echo=TRUE}
+# Function definition
+mean_by_group <- function(df, group_attr){
+  df %>%
+    group_by(!!group_attr) %>%
+    summarise_all(mean, na.rm = TRUE)
+}
+
+# The right call
+mean_by_group(my_df, quo(Species))
+
+```
+
+```{r function working on cars, echo=TRUE}
+# Can we use it on cars?
+mean_by_group(mtcars, quo(cyl))
+```
