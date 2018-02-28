@@ -78,7 +78,7 @@ mean_by_group(my_df, "Species")
 ```
 ## Our new tools
 
-- *The quosure `quo()`*: to replace the quotation (to be exact it creates a special type of formulat)
+- *The quosure `quo()`*: to replace the quotation (to be exact it creates a special type of formula)
 - *The bang `!!`*: to signal the need of unquoting
 
 ## Example
@@ -95,6 +95,7 @@ mean_by_group <- function(df, group_attr){
 mean_by_group(my_df, quo(Species))
 
 ```
+
 ## On cars?
 ```{r function working on cars, echo=TRUE}
 # Can we use it on cars?
