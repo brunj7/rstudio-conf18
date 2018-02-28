@@ -1,0 +1,47 @@
+---
+title: "Plumber"
+author: "Julien Brun, NCEAS"
+date: "ecodatascience, 2/28/2018"
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, collapse = T, comment = "#>")
+options(tibble.print_min = 4L, tibble.print_max = 4L)
+```
+
+## Plumber Kezako?
+
+Talk given by `Jeff Allen` at the RStudio conference, San Diego, 2018
+
+*Turn your R code into an API by adding some extras comments !!!*
+
+Talk: https://github.com/trestletech/rsconf-2018/blob/master/plumber.pdf
+
+Package on GitHub: https://github.com/trestletech/plumber
+
+
+## Demo - Script
+```{r script, echo = TRUE, eval = FALSE}
+
+# parrot.R
+
+#* @get /echo
+function(msg){
+  paste("EVERYBODY SAYS:", msg)
+}
+
+```
+
+## Demo - Launch the API
+```{r launch API, echo = TRUE, eval = FALSE}
+library(plumber)
+
+# Read in the script and create the router object
+pr <- plumb("parrot.R")
+
+# Launch web service
+pr$run(port=8000)
+```
+
+
