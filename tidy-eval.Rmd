@@ -4,7 +4,6 @@ author: "Julien Brun, NCEAS"
 date: "ecodatascience, 2/28/2018"
 output:
   slidy_presentation: default
-  ioslides_presentation: default
 ---
 
 ```{r setup, include=FALSE}
