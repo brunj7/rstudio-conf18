@@ -54,7 +54,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
   <p class="author">
 Julien Brun, NCEAS
   </p>
-  <p class="date">ecodatascience, 2/28/2018</p>
+  <p class="date">ecodatascience <span class="citation">@UCSB</span>, 2/28/2018</p>
 </div>
 <div id="tidy-eval" class="slide section level2">
 <h2>Tidy eval</h2>
@@ -128,8 +128,8 @@ mean_by_group &lt;-<span class="st"> </span><span class="cf">function</span>(df,
 <div id="our-new-tools" class="slide section level2">
 <h2>Our new tools</h2>
 <ul>
-<li><em>The quosure</em> <code>quo()</code>: to replace the quotation (to be exact it creates a special type of formula)</li>
-<li><em>The bang</em> <code>!!</code>: to signal the need of unquoting</li>
+<li><em>The quosure <code>quo()</code></em>: to replace the quotation (to be exact it creates a special type of formula)</li>
+<li><em>The bang <code>!!</code></em>: to signal the need of unquoting</li>
 </ul>
 </div>
 <div id="example" class="slide section level2">
@@ -142,7 +142,8 @@ mean_by_group &lt;-<span class="st"> </span><span class="cf">function</span>(df,
 }
 
 <span class="co"># The right call</span>
-<span class="kw">mean_by_group</span>(my_df, <span class="kw">quo</span>(Species))
+species_quosure &lt;-<span class="st"> </span><span class="kw">quo</span>(Species)
+<span class="kw">mean_by_group</span>(my_df, species_quosure)
 <span class="co">#&gt; # A tibble: 3 x 5</span>
 <span class="co">#&gt;   Species    Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
 <span class="co">#&gt;   &lt;fct&gt;             &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;</span>
@@ -150,16 +151,38 @@ mean_by_group &lt;-<span class="st"> </span><span class="cf">function</span>(df,
 <span class="co">#&gt; 2 versicolor         5.94        2.77         4.26       1.33 </span>
 <span class="co">#&gt; 3 virginica          6.59        2.97         5.55       2.03</span></code></pre></div>
 </div>
-<div id="on-cars" class="slide section level2">
-<h2>On cars?</h2>
+<div id="lets-try-it-on-cars" class="slide section level2">
+<h2>Let’s try it on cars?</h2>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Can we use it on cars?</span>
-<span class="kw">mean_by_group</span>(mtcars, <span class="kw">quo</span>(cyl))
+cyl_quo &lt;-<span class="st"> </span><span class="kw">quo</span>(cyl)
+<span class="kw">mean_by_group</span>(mtcars, cyl_quo)
 <span class="co">#&gt; # A tibble: 3 x 11</span>
 <span class="co">#&gt;     cyl   mpg  disp    hp  drat    wt  qsec    vs    am  gear  carb</span>
 <span class="co">#&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;</span>
-<span class="co">#&gt; 1  4.00  26.7   105  82.6  4.07  2.29  19.1 0.909 0.727  4.09  1.55</span>
-<span class="co">#&gt; 2  6.00  19.7   183 122    3.59  3.12  18.0 0.571 0.429  3.86  3.43</span>
-<span class="co">#&gt; 3  8.00  15.1   353 209    3.23  4.00  16.8 0     0.143  3.29  3.50</span></code></pre></div>
+<span class="co">#&gt; 1    4.  26.7  105.  82.6  4.07  2.29  19.1 0.909 0.727  4.09  1.55</span>
+<span class="co">#&gt; 2    6.  19.7  183. 122.   3.59  3.12  18.0 0.571 0.429  3.86  3.43</span>
+<span class="co">#&gt; 3    8.  15.1  353. 209.   3.23  4.00  16.8 0.    0.143  3.29  3.50</span></code></pre></div>
+</div>
+<div id="integration-this-within-the-function" class="slide section level2">
+<h2>Integration this within the function</h2>
+<p>What if you would like to integrate this directly within the function, so the user of your function does not need to know about <code>quo()</code>? In this case you will use <code>enquo()</code> within the function to encapsulate the argument. (Technically, this works because function arguments are evaluated lazily, using a special data structure called a <code>promise</code>).</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Function definition</span>
+mean_by_group &lt;-<span class="st"> </span><span class="cf">function</span>(df, group_attr){
+  group_attr &lt;-<span class="st"> </span><span class="kw">enquo</span>(group_attr)
+  df <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(<span class="op">!!</span>group_attr) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">summarise_all</span>(mean, <span class="dt">na.rm =</span> <span class="ot">TRUE</span>)
+}
+
+<span class="co"># The right call</span>
+<span class="kw">mean_by_group</span>(my_df, Species)
+<span class="co">#&gt; # A tibble: 3 x 5</span>
+<span class="co">#&gt;   Species    Sepal.Length Sepal.Width Petal.Length Petal.Width</span>
+<span class="co">#&gt;   &lt;fct&gt;             &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;</span>
+<span class="co">#&gt; 1 setosa             5.01        3.43         1.46       0.246</span>
+<span class="co">#&gt; 2 versicolor         5.94        2.77         4.26       1.33 </span>
+<span class="co">#&gt; 3 virginica          6.59        2.97         5.55       2.03</span></code></pre></div>
+<p>Happy coding!!!</p>
 </div>
 
   <!-- dynamically load mathjax for compatibility with self-contained -->

@@ -1,7 +1,7 @@
 ---
 title: "RStudio::conf18 - Tidy Eval"
 author: "Julien Brun, NCEAS"
-date: "ecodatascience, 2/28/2018"
+date: "ecodatascience @UCSB,  2/28/2018"
 output:
   slidy_presentation: default
 ---
@@ -91,12 +91,33 @@ mean_by_group <- function(df, group_attr){
 }
 
 # The right call
-mean_by_group(my_df, quo(Species))
+species_quosure <- quo(Species)
+mean_by_group(my_df, species_quosure)
 
 ```
 
-## On cars?
+## Let's try it on cars?
 ```{r function working on cars, echo=TRUE}
 # Can we use it on cars?
-mean_by_group(mtcars, quo(cyl))
+cyl_quo <- quo(cyl)
+mean_by_group(mtcars, cyl_quo)
 ```
+
+## Integration this within the function
+
+What if you would like to integrate this directly within the function, so the user of your function does not need to know about `quo()`? In this case you will use `enquo()` within the function to encapsulate the argument. (Technically, this works because function arguments are evaluated lazily, using a special data structure called a `promise`).
+
+```{r function with enquo, echo=TRUE}
+# Function definition
+mean_by_group <- function(df, group_attr){
+  group_attr <- enquo(group_attr)
+  df %>%
+    group_by(!!group_attr) %>%
+    summarise_all(mean, na.rm = TRUE)
+}
+
+# The right call
+mean_by_group(my_df, Species)
+```
+
+Happy coding!!!
